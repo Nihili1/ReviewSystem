@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/task
+            http://www.springframework.org/schema/task/spring-task.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:component-scan base-package="com.zy"/>
+
+    <!--开启SpringMVC 注解模式-->
+
+    <mvc:annotation-driven conversion-service="conversionService">
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <!--在没有用freemarker，直接响应客户都时，用utf8格式响应-->
+                        <value>text/html;charset=utf-8</value>
+
+                        <!--JSON （Jackson）序列化输出配置-->
+                        <value>application/json;charset=utf-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+
+    </mvc:annotation-driven>
+
+    <mvc:default-servlet-handler></mvc:default-servlet-handler>
+
+    <!--配置Freemarker-->
+    <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="/WEB-INF/ftl"></property>
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="defaultEncoding">UTF-8</prop>   <!--读取脚本文件的字符语言-->
+
+            </props>
+        </property>
+    </bean>
+
+    <bean id="ViewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <!--springMVC 加载freemarker 产生html文件 使用utf8-->
+        <property name="contentType" value="text/html;charset=utf-8"></property>
+        <property name="suffix" value=".ftl"></property>
+    </bean>
+
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+
+    </bean>
+
+
+    <!--MyBatis 与Spring整合-->
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url"
+                  value="jdbc:mysql://localhost:3306/review_sys?useUnicode=true&amp;characterEncoding=UTF-8"></property>
+        <property name="username" value="root"></property>
+
+        <property name="password" value="9916"></property>
+
+        <property name="initialSize" value="6"></property>
+
+        <property name="maxActive" value="20"></property>
+
+    </bean>
+
+
+<!--
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+-->
+    <bean id="sessionFactory" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
+
+    <property name="dataSource" ref="dataSource"></property>
+
+        <property name="mapperLocations" value="classpath:mappers/*.xml"></property>
+
+        <!--指定mybatis配置文件所在位置-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+    </bean>
+
+    <!--配置Mapper扫描器-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.zy.mapper"></property>
+
+    </bean>
+
+    <!--配置kaptcha-->
+    <bean id="kaptchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">
+          <property name="config">
+              <bean class="com.google.code.kaptcha.util.Config">
+                  <constructor-arg>
+                      <props>
+                          <!--验证码图片没有边框-->
+                          <prop key="kaptcha.border">no</prop>
+                          <!--验证码图片宽度120px-->
+                          <prop key="kaptcha.image.width">120</prop>
+                          <!--验证码图片中的字体颜色-->
+                          <prop key="kaptcha.textproducer.font.color">blue</prop>
+                          <!--验证码图片字体大小-->
+                          <prop key="kaptcha.textproducer.font.size">40</prop>
+
+                          <!--验证码包含4个字符-->
+                          <prop key="kaptcha.textproducer.char.length">4</prop>
+                      </props>
+                  </constructor-arg>
+                  
+              </bean>
+              
+          </property>
+    </bean>
+
+    <!--开启Spring Task 定时任务注解模式-->
+    <task:annotation-driven></task:annotation-driven>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"></property>
+
+    </bean>
+
+</beans>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zy.mapper.EvaluationMapper">
+
+    <select id="showComment" resultType="java.util.List">
+        select distinct book_name,username ,content,e.create_time
+      from  evaluation e ,book b ,member m
+            where e.book_id=b.book_id	and e.member_id=m.member_id
+    </select>
+
+</mapper>
